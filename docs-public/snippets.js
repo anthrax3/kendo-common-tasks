@@ -643,9 +643,11 @@ var plunker = {
     },
     angular: {
         plunkerFiles: [
-            'app/main.ts',
+            'main.ts',
             'app/app.component.ts',
-            'app/app.module.ts'
+            'app/app.module.ts',
+            'polyfills.ts',
+            'styles.css'
         ].concat(basicPlunkerFiles)
     }
 };
@@ -699,7 +701,7 @@ window.openInPlunker = function(listing) {
     var plunkerContext = {
         common: {
             appComponentContent: code,
-            npmUrl: $("<a />").attr("href", window.npmUrl)[0].href + "/",
+            npmUrl: 'https://unpkg.com',
             htmlContent: html,
             theme: "default",
             themeAccent: themeColors.default
@@ -720,6 +722,7 @@ window.openInPlunker = function(listing) {
             'core-js': '2.5.3',
             'rxjs': '5.5.6',
             'zone.js': '0.8.12',
+            '@angular/animations': '5.2.2',
             '@angular/core': '5.2.2',
             '@angular/common': '5.2.2',
             '@angular/compiler': '5.2.2',
@@ -734,6 +737,7 @@ window.openInPlunker = function(listing) {
             '@progress/kendo-charts': '*',
             '@progress/kendo-angular-l10n': '*',
             '@progress/kendo-angular-charts': '*',
+            '@progress/kendo-angular-layout': '*',
             '@progress/kendo-angular-gauges': '*',
             '@progress/kendo-angular-resize-sensor': '*',
             '@telerik/kendo-intl': '*',
@@ -770,7 +774,8 @@ window.openInPlunker = function(listing) {
     }
 
     var filterFunction = function(file) {
-        return (file.indexOf('html') >= 0 || file.split('.').pop() === language);
+        var ext = file.split('.').pop();
+        return (file.indexOf('html') >= 0 || ext === 'css' || ext === language);
     };
     $.when.apply($, plunkerRequests).then(function() {
         var plunkerTemplates = Array.prototype.slice.call(arguments).map(function(promise) { return promise[0]; });
