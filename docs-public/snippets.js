@@ -93,13 +93,14 @@ var plunkerTemplate = kendo.template(
     '<!doctype html>\
 <html>\
 <head>\
+    <base href="/internals/plunker/builder/">\
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">\
     <link rel="stylesheet" href="#: data.npmUrl #/@progress/kendo-theme-#: data.theme || "default" #/dist/all.css" />\
     <style>\
         html, body { overflow: hidden; }\
         body { font-family: "RobotoRegular",Helvetica,Arial,sans-serif; font-size: 14px; margin: 0; }\
-        my-app { display: block; width: 100%; overflow: hidden; min-height: 80px; box-sizing: border-box; padding: 30px; }\
-        my-app > .k-icon.k-i-loading { font-size: 64px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }\
+        app-root { display: block; width: 100%; overflow: hidden; min-height: 80px; box-sizing: border-box; padding: 30px; }\
+        app-root > .k-icon.k-i-loading { font-size: 64px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }\
         .example-wrapper { min-height: 280px; align-content: flex-start; }\
         .example-wrapper p, .example-col p { margin: 20px 0 10px; }\
         .example-wrapper p:first-child, .example-col p:first-child { margin-top: 0; }\
@@ -110,6 +111,7 @@ var plunkerTemplate = kendo.template(
         .event-log li:last-child { margin-bottom: -1px;}\
     </style>\
     <script src="https://unpkg.com/core-js/client/shim.min.js"></script>\
+    <script src="https://unpkg.com/zone.js"></script>\
     #= data.cdnResources #\
     <script src="https://unpkg.com/systemjs@0.19.27/dist/system.js"></script>\
     <script src="#: data.exampleRunner #"></script>\
@@ -120,7 +122,6 @@ var plunkerTemplate = kendo.template(
         runner.register("#= data.files[i].name #", "#= data.files[i].content #");\
         # } #\
         runner.start(System);\
-        alert(\'foo\');\
     </script>\
 </head>\
 <body>\
@@ -442,7 +443,9 @@ function bootstrapReact(options) {
     .join('\n');
 }
 
-function bootstrapUib() {
+function bootstrapBuilder(options) {
+    var code = options.code + '\n';
+    return code;
 }
 
 function bootstrapAngular(options) {
@@ -491,15 +494,19 @@ function plunkerPage(opts) {
         return htmlTemplate(options);
     }
 
-    var codeContent = codeToString(bootstrap.call(this, {
-        code: options.code,
-        resize: true,
-        track: options.track
-    }));
+    if (window.platform !== 'builder') {
+        let codeContent = codeToString(bootstrap.call(this, {
+            code: options.code,
+            resize: true,
+            track: options.track
+        }));
 
-    options.files = [
-        { name: "main." + opts.language, content: codeContent }
-    ];
+        options.files = [
+            { name: "main." + opts.language, content: codeContent }
+        ];
+    }
+
+    options.files = [];
 
     return plunkerTemplate(options);
 }
@@ -572,7 +579,6 @@ var blockTypes = {
 // denotes group of several code snippets
 function CodeListing(elements) {
     var that = this;
-
     this.elements = elements;
 
     /**
@@ -700,12 +706,18 @@ var plunker = {
             'polyfills.ts',
             'styles.css'
         ].concat(basicPlunkerFiles)
+    },
+    builder: {
+        plunkerFiles: [
+            'app/main.ts',
+            'app/app.component.ts',
+            'app/app.module.ts'
+        ].concat(basicPlunkerFiles)
     }
 };
 
 function getPlunkerFile(file) {
     var path = [ window.plunkerBluePrintPath, window.platform, '/', file ];
-
     return $.ajax(path.join(''), { dataType: 'text' });
 }
 
@@ -910,14 +922,12 @@ $(function() {
             return false;
         }
     }, {
-
-        uib: {
+        builder: {
             runnerContent: function(options) {
                 var listing = options.listing;
                 var theme = options.theme || 'default';
-
                 return plunkerPage({
-                    bootstrap: bootstrapUib,
+                    bootstrap: bootstrapBuilder,
                     code: listing['ts'] || listing['ng-template'],
                     html: listing['html'],
                     language: listing.runtimeLanguage,
@@ -959,9 +969,7 @@ $(function() {
                 });
             }
         }
-    }['uib']);
-/* DONT FORGET TO REMOVVE THE ABOVE :) */
-
+    }[window.platform]);
 
     function toCodeListings(tags) {
         var blocks = [];
@@ -1186,6 +1194,7 @@ $(function() {
     }
 
     function loadMultiFileRunnerContent(element) {
+
         var filesContent = "";
         var files = $.map(element.find("pre"), function(item) {
             var pre = $(item);
@@ -1200,6 +1209,7 @@ $(function() {
                 content: codeToString(removeJsTrackingMarks(code))
             };
         });
+
         /* If this is multifile runnable example there must be a main file, locate it and infer the runtime language from it */
         var mainFile = files.filter(function(file) { return file.name.indexOf('main.') >= 0; }).pop();
         var runtimeLanguage = mainFile.name.split('.').pop();
