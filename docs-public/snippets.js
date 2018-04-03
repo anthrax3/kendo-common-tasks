@@ -496,7 +496,7 @@ function plunkerPage(opts) {
     }
 
     if (window.platform !== 'builder') {
-        let codeContent = codeToString(bootstrap.call(this, {
+        var codeContent = codeToString(bootstrap.call(this, {
             code: options.code,
             resize: true,
             track: options.track
