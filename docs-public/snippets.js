@@ -171,6 +171,7 @@ var stackBlitzDependencies = {
         '@progress/kendo-angular-ripple': '*',
         '@progress/kendo-angular-scrollview': '*',
         '@progress/kendo-angular-sortable': '*',
+        //TODO: Add '@progress/kendo-angular-tooltip': '*',
         '@progress/kendo-angular-treeview': '*',
         '@progress/kendo-angular-upload': '*'
     },
