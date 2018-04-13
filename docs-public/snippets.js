@@ -508,7 +508,6 @@ function plunkerPage(opts) {
     }
 
     options.files = [];
-
     return plunkerTemplate(options);
 }
 
@@ -1213,7 +1212,7 @@ $(function() {
                 content: codeToString(removeJsTrackingMarks(code))
             };
         });
-
+        var root = window.platform === 'builder' ? '/' : 'app/';
         /* If this is multifile runnable example there must be a main file, locate it and infer the runtime language from it */
         var mainFile = files.filter(function(file) { return file.name.indexOf('main.') >= 0; }).pop();
         var runtimeLanguage = mainFile.name.split('.').pop();
@@ -1228,7 +1227,8 @@ $(function() {
             language: runtimeLanguage,
             themeAccent: themeColors[theme],
             files: files,
-            track: window.trackjs
+            track: window.trackjs,
+            root: root
         });
 
         return content;
