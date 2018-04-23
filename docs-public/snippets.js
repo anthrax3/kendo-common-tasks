@@ -147,7 +147,7 @@ var stackBlitzDependencies = {
         '@angular/forms': '5.2.2',
         'hammerjs': '*',
         '@telerik/kendo-intl': '*',
-        '@telerik/kendo-date-math': '*',
+        '@progress/kendo-date-math': '*',
         '@progress/kendo-drawing': '*',
         '@progress/kendo-data-query': '*',
         '@progress/kendo-file-saver': '*',
